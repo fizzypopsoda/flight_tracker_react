@@ -1,4 +1,5 @@
 import "./SearchPage.css";
+import React, { useState } from "react";
 
 function SearchPage() {
   const [formData, setFormData] = useState({
@@ -12,7 +13,7 @@ function SearchPage() {
     numSeniors: "0", // Treat as string
     classOfService: "ECONOMY",
   });
-  const [flights, setFlights] = useState([]);
+  const [purchaseLinks, setPurchaseLinks] = useState([]);
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
@@ -53,7 +54,15 @@ function SearchPage() {
 
       if (response.ok) {
         const data = await response.json();
-        setFlights(data);
+        const uniquePrices = new Set();
+        const uniquePurchaseLinks = data.filter((link) => {
+          if (!uniquePrices.has(link.totalPrice)) {
+            uniquePrices.add(link.totalPrice);
+            return true;
+          }
+          return false;
+        });
+        setPurchaseLinks(uniquePurchaseLinks);
       } else {
         const errorData = await response.json();
         console.error("Backend Error:", errorData);
@@ -67,10 +76,10 @@ function SearchPage() {
 
   return (
     <div className="search-page">
-      <h2>If you are here you successfully "logged in."</h2>
-      <form onSubmit={handleSubmit}>
+      <h2>Please enter your travel information</h2>
+      <form onSubmit={handleSubmit} className="form-container">
         <div>
-          <label>Source Airport Code:</label>
+          <label>Source Airport Code (ex.BOS):</label>
           <input
             type="text"
             name="sourceAirportCode"
@@ -80,7 +89,7 @@ function SearchPage() {
           />
         </div>
         <div>
-          <label>Destination Airport Code:</label>
+          <label>Destination Airport Code (ex.JFK):</label>
           <input
             type="text"
             name="destinationAirportCode"
@@ -169,21 +178,19 @@ function SearchPage() {
         <button type="submit">Search Flights</button>
       </form>
       {error && <p className="error">{error}</p>}
-      {flights.length > 0 && (
+      {purchaseLinks.length > 0 && (
         <div className="flight-results">
-          <h3>Flight Results:</h3>
-          <ul>
-            {flights.map((flight, index) => (
-              <li key={index}>
-                <p>Flight {index + 1}</p>
-                <p>Airline: {flight.airline}</p>
-                <p>Departure: {flight.departure}</p>
-                <p>Arrival: {flight.arrival}</p>
-                <p>Price: {flight.price}</p>
-                <p>Duration: {flight.duration}</p>
-              </li>
-            ))}
-          </ul>
+          {purchaseLinks.map((link, index) => (
+            <div key={index} className="flight-card">
+              <p>Provider: {link.providerId}</p>
+              <p>Price: {link.totalPrice}</p>
+              <p>
+                <a href={link.url} target="_blank" rel="noopener noreferrer">
+                  Book now
+                </a>
+              </p>
+            </div>
+          ))}
         </div>
       )}
     </div>
