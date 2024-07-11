@@ -1,0 +1,16 @@
+/* src/pages/SearchPage.css */
+.search-page {
+  text-align: center;
+  padding: 50px;
+  background-color: #f0f4f8;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-page h2 {
+  color: #333;
+  font-size: 36px;
+}
